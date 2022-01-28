@@ -1,6 +1,10 @@
 name: Build and Push of Container
 
-on: push
+on: 
+  push:
+    branches:
+      - main        # Role on AWS side will fail auth on any other branch
+      - 'evil/**'   # Use a branchname starting with evil/ to see auth failure
 
 permissions:
   id-token: write # required to use OIDC authentication
