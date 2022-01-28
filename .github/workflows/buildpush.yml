@@ -25,13 +25,13 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-      - name: Docker meta - set up image tags and labels
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.REPO }}
-          tags: |
-            type=sha
+      # - name: Docker meta - set up image tags and labels
+      #   id: meta
+      #   uses: docker/metadata-action@v3
+      #   with:
+      #     images: ${{ env.REPO }}
+      #     tags: |
+      #       type=sha
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
