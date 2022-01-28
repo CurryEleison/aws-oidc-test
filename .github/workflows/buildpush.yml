@@ -1,0 +1,52 @@
+name: Build and Push of Container
+
+on: push
+
+permissions:
+  id-token: write # required to use OIDC authentication
+  contents: read # required to checkout the code from the repo
+
+
+jobs:
+  imagebuild:
+    name: Build and Push of Container to ECR
+    env:
+      ECR_REPOSITORY: python-hello-oidc
+      AWS_DEFAULT_REGION: eu-west-1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU to fetch amd64 and arm64
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: amd64,arm64
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Docker meta - set up image tags and labels
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REPO }}
+          tags: |
+            type=sha
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+          role-duration-seconds: 3600
+          role-session-name: EcrBuildWorkerImageSession
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Image names
+        id: buildinfo
+        run: |
+          echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
+          echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
+      - name: Build image and tag it
+        run: |
+          docker build --load -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
