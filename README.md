@@ -9,4 +9,3 @@ Steps to reproduce available at https://benoitboure.com/securely-access-your-aws
 Useful CloudFormation template to set up the requisite role (and optionally the identity provider) 
 at AWS: https://github.com/aws-actions/configure-aws-credentials#sample-iam-role-cloudformation-template . 
 (Note the clever trick where you can supply an OIDC ARN or have a new one created by the template!)
-
